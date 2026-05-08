@@ -23,3 +23,11 @@
 [2026-05-08 19:50:34] [SENTINEL-0] Heartbeat Autopilot (8765): HEALTHY
 [2026-05-08 19:50:34] [SENTINEL-0] Heartbeat MCP_Gateway (8766): HEALTHY
 [2026-05-08 19:50:34] [SENTINEL-0] Heartbeat Mesh_Server (8767): HEALTHY
+[2026-05-08 19:52:06] [SENTINEL-0] ALERT: Autopilot DEAD. Инициация авто-восстановления...
+[2026-05-08 21:53:04] [SENTINEL-0] Sentinel-0: Autonomous Recovery Mode.
+[2026-05-08 21:53:04] [SENTINEL-0] ALERT: Autopilot DEAD. Восстановление...
+[2026-05-08 21:53:09] [SENTINEL-0] Heartbeat MCP_Gateway: HEALTHY
+[2026-05-08 21:53:09] [SENTINEL-0] Heartbeat Mesh_Server: HEALTHY
+[2026-05-08 19:53:16] [SENTINEL-0] ALERT: Autopilot DEAD. Восстановление...
+[2026-05-08 19:53:20] [SENTINEL-0] Heartbeat MCP_Gateway: HEALTHY
+[2026-05-08 19:53:20] [SENTINEL-0] Heartbeat Mesh_Server: HEALTHY

@@ -35,6 +35,11 @@ case "$1" in
         else
             echo "[!] Нет токена. ark handshake"
         fi ;;
+    "archive")
+        echo "[SYSTEM] Архивация сессии..."
+        A_FILE="/root/ark/logs/ARK_SESSION_$(date +%Y%m%d_%H%M%S).tar.gz"
+        tar -czf "$A_FILE" /root/ark/logs/*.log /root/ark/logs/manifests/*.json
+        echo "[SUCCESS] Сессия упакована: $A_FILE" ;;
     "status")
         tail -n 10 "$LOG_FILE" ;;
     *)
