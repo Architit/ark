@@ -36,10 +36,11 @@ case "$1" in
             echo "[!] Нет токена. ark handshake"
         fi ;;
     "archive")
-        echo "[SYSTEM] Архивация сессии..."
+        echo "[SYSTEM] Архивация и Omni-Backup..."
         A_FILE="/root/ark/logs/ARK_SESSION_$(date +%Y%m%d_%H%M%S).tar.gz"
         tar -czf "$A_FILE" /root/ark/logs/*.log /root/ark/logs/manifests/*.json
-        echo "[SUCCESS] Сессия упакована: $A_FILE" ;;
+        bash /root/ark/telemetry/backup_manager.sh "$A_FILE"
+        echo "[SUCCESS] Omni-Persistence завершен." ;;
     "status")
         tail -n 10 "$LOG_FILE" ;;
     *)
