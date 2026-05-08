@@ -1,0 +1,9 @@
+{
+  "topology": "Hexagonal",
+  "nodes": {
+    "ark": {"type": "master", "path": "/root/ark"},
+    "radriloniuma": {"type": "logic", "path": "/root/radriloniuma.ark"},
+    "trianiuma": {"type": "edge", "path": "/root/trianiuma.ark"}
+  },
+  "gateways": [8765, 8766, 8767]
+}
