@@ -1,5 +1,7 @@
 #!/bin/bash
 LOG_FILE="/root/ark/logs/ark_event_journal.log"
+MANIFEST_DIR="/root/ark/logs/manifests"
+mkdir -p "$MANIFEST_DIR"
 
 log_event() {
     EVENT_ID=$(date +%s | sha256sum | head -c 8)
@@ -17,20 +19,41 @@ case "$1" in
         log_event "Протокол оживления: Sentinel-0."
         pm2 start /root/radriloniuma.ark/core/sentinel.py --name "Sentinel-0"
         pm2 save
-        notify_android "Sentinel-0 активен. Узлы под защитой."
+        notify_android "Sentinel-0 запущен и мониторит сеть."
         ;;
-    "scan")
-        log_event "Запуск диагностики."
-        python3 /root/radriloniuma.ark/core/scanner.py | tee /tmp/scan_res
-        if grep -q "OFFLINE" /tmp/scan_res; then
-            notify_android "ALERT: Обнаружены неактивные узлы."
+    "logs")
+        pm2 logs Sentinel-0 --lines 20 --nostream
+        ;;
+    "manifest")
+        M_FILE="$MANIFEST_DIR/master_manifest_$(date +%Y%m%d_%H%M%S).json"
+        echo "[MANIFEST] Сборка глобального состояния..."
+        cat << JSON_EOF > "$M_FILE"
+{
+  "timestamp": "$(date)",
+  "nodes": {
+    "ark": "$(cd /root/ark && git rev-parse --short HEAD)",
+    "logic": "$(cd /root/radriloniuma.ark && git rev-parse --short HEAD)",
+    "mobile": "$(cd /root/trianiuma.ark && git rev-parse --short HEAD)"
+  },
+  "system": {
+    "ram": "$(free -h | awk 'NR==2{print $3 "/" $2}')",
+    "pm2_status": "active"
+  }
+}
+JSON_EOF
+        echo "[SUCCESS] Манифест создан: $M_FILE"
+        read -p "[?] Экспортировать манифест в Android? (y/n): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            BRIDGE="/sdcard/Download/ARK_Manifests"
+            mkdir -p "$BRIDGE"
+            SHARED="$BRIDGE/$(basename "$M_FILE")"
+            cp "$M_FILE" "$SHARED"
+            termux-share -a send "$SHARED"
         fi
         ;;
     "dashboard")
         echo -e "\e[1;34m--- ARK SYSTEM DASHBOARD ---\e[0m"
-        echo "[TIME] $(date)"
-        free -h | awk 'NR==2{printf "  - RAM Usage: %s / %s\n", $3,$2 }'
-        echo -e "\e[1;32m[PROCESSES (PM2)]\e[0m"
         pm2 status
         echo -e "\e[1;33m[LAST EVENTS]\e[0m"
         tail -n 5 "$LOG_FILE"
@@ -39,6 +62,6 @@ case "$1" in
         tail -n 10 "$LOG_FILE"
         ;;
     *)
-        echo "Usage: ark {revive|scan|dashboard|status}"
+        echo "Usage: ark {revive|logs|manifest|dashboard|status}"
         ;;
 esac
