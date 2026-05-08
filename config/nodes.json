@@ -1,0 +1,6 @@
+{
+  "core": "ark",
+  "logic": "radriloniuma.ark",
+  "edge": "trianiuma.ark",
+  "status": "initialized"
+}
