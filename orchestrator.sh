@@ -9,32 +9,30 @@ log_event() {
 
 case "$1" in
     "sync")
-        log_event "Глобальная синхронизация узлов."
         for node in /root/ark /root/radriloniuma.ark /root/trianiuma.ark; do
-            echo "[SYNC] Проверка узла: $node"
+            echo "[SYNC] Узел: $node"
             cd $node && git pull origin ark-gen-phase-0
         done
         ;;
-    "health")
-        echo -e "\e[1;34m--- ARK HEALTH REPORT ---\e[0m"
-        pm2 status Sentinel-0
-        echo -e "\e[1;32m[LAST SENTINEL ACTIVITY]\e[0m"
-        tail -n 5 "$LOG_FILE" | grep "SENTINEL"
+    "report")
+        echo "--- ГЛОБАЛЬНЫЙ ОТЧЕТ ARK ---"
+        echo "Аптайм системы: $(uptime -p)"
+        echo "Событий в журнале: $(wc -l < $LOG_FILE)"
+        echo "Объектов в Vault: $(ls $VAULT_DIR | wc -l)"
         ;;
-    "heartbeat")
-        log_event "Запуск проверки сердцебиения (Deep Scan)."
-        python3 /root/radriloniuma.ark/core/sentinel.py --once
+    "telemetry")
+        python3 /root/ark/telemetry/collector.py
+        echo "[SUCCESS] Данные телеметрии записаны."
         ;;
     "dashboard")
         echo -e "\e[1;34m--- ARK SYSTEM DASHBOARD ---\e[0m"
         pm2 status
         free -h | awk 'NR==2{print "  RAM: " $3 "/" $2}'
-        echo "[VAULT] Инвентаризация: $(ls $VAULT_DIR | wc -l) объектов."
         ;;
     "status")
         tail -n 10 "$LOG_FILE"
         ;;
     *)
-        echo "Usage: ark {sync|health|heartbeat|dashboard|status}"
+        echo "Usage: ark {sync|report|telemetry|dashboard|status}"
         ;;
 esac
