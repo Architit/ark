@@ -1,0 +1,6 @@
+{
+  "project": "TRIANIUMA ARK",
+  "architect": "Architit",
+  "protocols": ["VAVIMA", "RADRILONIUMA"],
+  "security_level": "Zero-Trust"
+}
