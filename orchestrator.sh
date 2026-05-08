@@ -23,6 +23,18 @@ case "$1" in
         else
             echo "[!] Сессия не инициализирована. Выполни: ark handshake"
         fi ;;
+    "ignite")
+        echo "[SYSTEM] Активация Mesh-сети..."
+        pm2 start /root/radriloniuma.ark/core/gateway_mock.py --name "Autopilot-8765" -- 8765 Autopilot
+        pm2 start /root/radriloniuma.ark/core/gateway_mock.py --name "Gateway-8766" -- 8766 MCP_Gateway
+        pm2 start /root/radriloniuma.ark/core/gateway_mock.py --name "Mesh-8767" -- 8767 Mesh_Server
+        pm2 save ;;
+    "pulse")
+        if [ -f /tmp/ark_session_token ]; then
+            python3 /root/radriloniuma.ark/core/sentinel.py $(cat /tmp/ark_session_token)
+        else
+            echo "[!] Нет токена. ark handshake"
+        fi ;;
     "status")
         tail -n 10 "$LOG_FILE" ;;
     *)

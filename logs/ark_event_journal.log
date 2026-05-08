@@ -17,3 +17,9 @@
 [2026-05-08 21:24:58] [SENTINEL-0] ALERT: Узел MCP_Gateway (Port 8766) недоступен.
 [2026-05-08 21:24:58] [SENTINEL-0] ALERT: Узел Mesh_Server (Port 8767) недоступен.
 [2026-05-08 21:34:34] [SENTINEL-0] Sentinel-0 переведен в режим автономного анализа ресурсов.
+[2026-05-08 19:47:06] [SENTINEL-0] Heartbeat Autopilot (8765): DEAD
+[2026-05-08 19:47:06] [SENTINEL-0] Heartbeat MCP_Gateway (8766): DEAD
+[2026-05-08 19:47:06] [SENTINEL-0] Heartbeat Mesh_Server (8767): DEAD
+[2026-05-08 19:50:34] [SENTINEL-0] Heartbeat Autopilot (8765): HEALTHY
+[2026-05-08 19:50:34] [SENTINEL-0] Heartbeat MCP_Gateway (8766): HEALTHY
+[2026-05-08 19:50:34] [SENTINEL-0] Heartbeat Mesh_Server (8767): HEALTHY
