@@ -13,6 +13,16 @@ case "$1" in
         ;;
     "secure")
         python3 /root/radriloniuma.ark/protocols/vavima/gate.py ;;
+    "handshake")
+        TOKEN=$(python3 /root/radriloniuma.ark/protocols/vavima/handshake.py)
+        echo "$TOKEN" > /tmp/ark_session_token
+        echo "[VAVIMA] Сессионный токен создан и сохранен." ;;
+    "verify")
+        if [ -f /tmp/ark_session_token ]; then
+            python3 /root/radriloniuma.ark/protocols/vavima/gate.py $(cat /tmp/ark_session_token)
+        else
+            echo "[!] Сессия не инициализирована. Выполни: ark handshake"
+        fi ;;
     "status")
         tail -n 10 "$LOG_FILE" ;;
     *)
