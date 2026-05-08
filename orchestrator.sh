@@ -8,38 +8,42 @@ log_event() {
 
 notify_android() {
     if command -v termux-notification &> /dev/null; then
-        termux-notification --title "ARK SYSTEM ALERT" --content "$1" --priority high
+        termux-notification --title "ARK SYSTEM" --content "$1" --priority high
     fi
 }
 
 case "$1" in
+    "revive")
+        log_event "Запуск протокола воскрешения узлов."
+        echo "[REVIVE] Оживление процессов через PM2..."
+        pm2 start /root/radriloniuma.ark/core/sentinel.py --name "Sentinel-0"
+        pm2 save
+        notify_android "Протокол Revive выполнен. Узлы запущены."
+        ;;
     "scan")
         log_event "Запуск диагностики."
         python3 /root/radriloniuma.ark/core/scanner.py | tee /tmp/scan_res
         if grep -q "OFFLINE" /tmp/scan_res; then
-            notify_android "Внимание! Обнаружены неактивные узлы в сети ARK."
+            notify_android "ALERT: Обнаружены неактивные узлы."
         fi
         ;;
     "dashboard")
         echo -e "\e[1;34m--- ARK SYSTEM DASHBOARD ---\e[0m"
         echo "[TIME] $(date)"
         free -h | awk 'NR==2{printf "  - RAM Usage: %s / %s\n", $3,$2 }'
-        echo -e "\e[1;32m[PROCESSES]\e[0m"
-        pm2 status || echo "  PM2 Offline"
+        echo -e "\e[1;32m[PROCESSES (PM2)]\e[0m"
+        pm2 status
         echo -e "\e[1;33m[LAST EVENTS]\e[0m"
         tail -n 5 "$LOG_FILE"
         ;;
-    "watch")
-        echo "[WATCHER] Запуск фонового мониторинга. (Ctrl+C для выхода)"
-        while true; do
-            /root/ark/orchestrator.sh scan > /dev/null
-            sleep 300
-        done
+    "stop-all")
+        log_event "Принудительная остановка всех процессов."
+        pm2 stop all && pm2 save
         ;;
     "status")
         tail -n 10 "$LOG_FILE"
         ;;
     *)
-        echo "Usage: ark {scan|dashboard|watch|status}"
+        echo "Usage: ark {revive|scan|dashboard|stop-all|status}"
         ;;
 esac
