@@ -14,11 +14,10 @@ notify_android() {
 
 case "$1" in
     "revive")
-        log_event "Запуск протокола воскрешения узлов."
-        echo "[REVIVE] Оживление процессов через PM2..."
+        log_event "Протокол оживления: Sentinel-0."
         pm2 start /root/radriloniuma.ark/core/sentinel.py --name "Sentinel-0"
         pm2 save
-        notify_android "Протокол Revive выполнен. Узлы запущены."
+        notify_android "Sentinel-0 активен. Узлы под защитой."
         ;;
     "scan")
         log_event "Запуск диагностики."
@@ -36,14 +35,10 @@ case "$1" in
         echo -e "\e[1;33m[LAST EVENTS]\e[0m"
         tail -n 5 "$LOG_FILE"
         ;;
-    "stop-all")
-        log_event "Принудительная остановка всех процессов."
-        pm2 stop all && pm2 save
-        ;;
     "status")
         tail -n 10 "$LOG_FILE"
         ;;
     *)
-        echo "Usage: ark {revive|scan|dashboard|stop-all|status}"
+        echo "Usage: ark {revive|scan|dashboard|status}"
         ;;
 esac
