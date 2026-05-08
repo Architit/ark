@@ -6,36 +6,40 @@ log_event() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ID:$EVENT_ID] $1" >> "$LOG_FILE"
 }
 
+notify_android() {
+    if command -v termux-notification &> /dev/null; then
+        termux-notification --title "ARK SYSTEM ALERT" --content "$1" --priority high
+    fi
+}
+
 case "$1" in
     "scan")
-        log_event "Запуск глубокой диагностики с попыткой восстановления."
-        python3 /root/radriloniuma.ark/core/scanner.py
-        # Простая проверка: если порты закрыты (код выхода сканера может быть расширен),
-        # здесь будет команда на перезапуск через PM2
+        log_event "Запуск диагностики."
+        python3 /root/radriloniuma.ark/core/scanner.py | tee /tmp/scan_res
+        if grep -q "OFFLINE" /tmp/scan_res; then
+            notify_android "Внимание! Обнаружены неактивные узлы в сети ARK."
+        fi
         ;;
     "dashboard")
-        echo "--- ARK SYSTEM DASHBOARD ---"
+        echo -e "\e[1;34m--- ARK SYSTEM DASHBOARD ---\e[0m"
         echo "[TIME] $(date)"
-        echo "[RESOURCES]"
-        free -h | awk 'NR==2{printf "  - RAM: %s / %s (%.2f%%)\n", $3,$2,$3*100/$2 }'
-        echo "[PROCESSES (PM2)]"
-        pm2 status || echo "  [!] PM2 не активен."
-        echo "[LAST LOGS]"
-        tail -n 3 "$LOG_FILE"
+        free -h | awk 'NR==2{printf "  - RAM Usage: %s / %s\n", $3,$2 }'
+        echo -e "\e[1;32m[PROCESSES]\e[0m"
+        pm2 status || echo "  PM2 Offline"
+        echo -e "\e[1;33m[LAST EVENTS]\e[0m"
+        tail -n 5 "$LOG_FILE"
         ;;
-    "mobile-init")
-        log_event "Инициализация мобильного узла."
-        /root/trianiuma.ark/scripts/bootstrap.sh
-        ;;
-    "snapshot")
-        log_event "Экстренный снэпшот системы."
-        tar -czf "/root/ark/logs/snapshot_$(date +%Y%m%d_%H%M%S).tar.gz" /root/ark /root/radriloniuma.ark /root/trianiuma.ark 2>/dev/null
-        echo "[SUCCESS] Снимок сохранен в logs/."
+    "watch")
+        echo "[WATCHER] Запуск фонового мониторинга. (Ctrl+C для выхода)"
+        while true; do
+            /root/ark/orchestrator.sh scan > /dev/null
+            sleep 300
+        done
         ;;
     "status")
         tail -n 10 "$LOG_FILE"
         ;;
     *)
-        echo "Usage: ./orchestrator.sh {scan|dashboard|mobile-init|snapshot|status}"
+        echo "Usage: ark {scan|dashboard|watch|status}"
         ;;
 esac
